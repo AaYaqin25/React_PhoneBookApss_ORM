@@ -24,15 +24,15 @@ router.post('/', async function (req, res, next) {
 
 router.put('/:id', async function (req, res, next) {
   try {
-    const updateUser = await models.User.update({
-      name: req.body.name,
-      phone: req.body.phone
-    }, {
-      where: {
-        id: req.params.id
-      }
-    })
-    res.json(new Response(updateUser))
+    const updateUser = await models.User.update(req.body,
+      {
+        where: {
+          id: req.params.id
+        },
+        returning: true,
+        plain: true
+      })
+    res.json(new Response(updateUser[1]))
   } catch (error) {
     res.status(500).json(new Response(error, false))
   }
