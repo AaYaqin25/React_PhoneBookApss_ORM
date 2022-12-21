@@ -46,7 +46,7 @@ export default class UserFormSearch extends Component {
                     <input type="text" id="phone" name='phone' className="form-control" placeholder='phone' onChange={this.handleInputChange} value={this.state.phone} />
                 </div>
                 <div className="col-auto">
-                    <button className='btn btn-primary' ><i className="fa-regular fa-circle-check"></i> save</button>
+                    <button className='btn btn-primary' ><i className="fa-regular fa-circle-check"></i> search</button>
                 </div>
             </div>
         </form>

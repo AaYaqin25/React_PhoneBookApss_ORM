@@ -145,7 +145,10 @@ export default class UserBox extends Component {
         axios.get('http://localhost:3000/users', {params: query})
             .then(({ data }) => {
                 this.setState({
-                    users: data.data.result.filter(item => item.name !== data.data.name || item.phone !== data.data.phone)
+                    users: data.data.result.map(item => {
+                        item.sent = true
+                        return item
+                    })
                 })
             })
             .catch((error) => {
