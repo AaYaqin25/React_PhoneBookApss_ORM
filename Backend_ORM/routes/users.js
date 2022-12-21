@@ -2,12 +2,74 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models/index.js')
 var { Response } = require('../helpers/util.js');
+const { Op } = require('sequelize');
 
 
 router.get('/', async function (req, res, next) {
   try {
-    const getUser = await models.User.findAll()
-    res.json(new Response(getUser))
+    const { name, phone } = req.query
+
+    const page = parseInt(req.query.page) || 1
+    const limit = 3
+    const offset = (page - 1) * limit
+
+
+    const total = await models.User.count()
+    const totalPage = Math.ceil(total / limit)
+    if (name && phone) {
+      const getUser = await models.User.findAll({
+        where: {
+          [Op.and]: [
+            {
+              name: {
+                [Op.iLike]: '%' + name + '%'
+              }
+            },
+            {
+              phone: {
+                [Op.iLike]: '%' + phone + '%'
+              }
+            }
+          ]
+        },
+        offset: offset,
+        limit: limit
+      })
+      res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
+    } else if (name) {
+      const getUser = await models.User.findAll({
+        where: {
+          [Op.and]: [
+            {
+              name: {
+                [Op.iLike]: '%' + name + '%'
+              }
+            }
+          ]
+        },
+        offset: offset,
+        limit: limit
+      })
+      res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
+    } else if (phone) {
+      const getUser = await models.User.findAll({
+        where: {
+          [Op.and]: [
+            {
+              phone: {
+                [Op.iLike]: '%' + phone + '%'
+              }
+            }
+          ]
+        },
+        offset: offset,
+        limit: limit
+      }) 
+      res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
+    } else {
+      const getUser = await models.User.findAll()
+      res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
+    }
   } catch (error) {
     res.status(500).json(new Response(error, false))
   }

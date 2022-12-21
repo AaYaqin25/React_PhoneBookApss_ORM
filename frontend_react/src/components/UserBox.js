@@ -1,96 +1,216 @@
 import '../styling/all.css'
-export default function UserBox() {
-    return (
-        <div className="container">
-            <div className="card">
-                <div className="card-header">
-                    <div className="head">
-                        <h1>Phone Book Apps</h1>
-                    </div>
-                </div>
-            </div>
-            <br />
-            <button id='btnadd' className='btn btn-light'><i class="fas fa-plus"></i> add</button>
-            <br />
+import React, { Component } from 'react'
+import UserList from './UserList';
+import UserFormSearch from './UserFormSearch';
+import UserFormAdd from './UserFormAdd';
+import axios from 'axios'
 
-            <br />
+
+export default class UserBox extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            users: [],
+            isAdd: false
+        }
+    }
+
+    componentDidMount() {
+        axios.get('http://localhost:3000/users')
+            .then(({ data }) => {
+                this.setState({
+                    users: data.data.result.map(item => {
+                        item.sent = true
+                        return item
+                    })
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+
+    addUser = ({ name, phone }) => {
+        const id = Date.now()
+        this.setState(function (state, props) {
+            return {
+                users: [
+                    ...state.users,
+                    { id, name, phone, sent: true }
+                ]
+            };
+        });
+
+        axios.post('http://localhost:3000/users', { name, phone })
+            .then(({ data }) => {
+                console.log(data);
+                this.setState(state => {
+                    return {
+                        users: state.users.map(item => {
+                            if (item.id === id) {
+                                return {
+                                    id: data.data.id,
+                                    name: data.data.name,
+                                    phone: data.data.phone,
+                                    sent: true
+                                }
+                            }
+                            return item
+                        })
+                    }
+                })
+            })
+            .catch((error) => {
+                this.setState(state => {
+                    return {
+                        users: state.users.map(item => {
+                            if (item.id === id) {
+                                return {
+                                    ...item,
+                                    sent: false
+                                }
+                            }
+                            return item
+                        })
+                    }
+                })
+            })
+    }
+
+    removeUser = (id) => {
+        axios.delete(`http://localhost:3000/users/${id}`)
+            .then(({ data }) => {
+                this.setState(state => {
+                    return {
+                        users: state.users.filter(item => item.id !== id)
+                    }
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+    updateUser = (id, name, phone) => {
+        axios.put(`http://localhost:3000/users/${id}`, { name, phone })
+            .then(({ data }) => {
+                this.setState(state => {
+                    return {
+                        users: state.users.map(item => {
+                            if (item.id === id) {
+                                return {
+                                    id: data.data.id,
+                                    name: data.data.name,
+                                    phone: data.data.phone,
+                                    sent: true
+                                }
+                            }
+                            return item
+                        })
+                    }
+                })
+            })
+            .catch((error) => {
+                console.log("gagal update", error);
+            })
+    }
+
+    resendUser = ({ id, name, phone }) => {
+        axios.post('http://localhost:3000/users', { name, phone })
+            .then(({ data }) => {
+                this.setState(state => {
+                    return {
+                        users: state.users.map(item => {
+                            if (item.id === id) {
+                                return {
+                                    id: data.data.id,
+                                    name: data.data.name,
+                                    phone: data.data.phone,
+                                    sent: true
+                                }
+                            }
+                            return item
+                        })
+                    }
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+
+    searchUser = (query) => {
+        axios.get('http://localhost:3000/users', {params: query})
+            .then(({ data }) => {
+                this.setState({
+                    users: data.data.result.filter(item => item.name !== data.data.name || item.phone !== data.data.phone)
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+    showAdd = (props) => {
+        if (!props.show) {
+            return null;
+        }
+        return (
             <div className="card">
                 <div className="card-header">
                     <h5 id='texthead'>Adding Form</h5>
                 </div>
                 <div className="card-body">
-                    <form>
-                        <div className="row g-1 align-items-center">
-                            <div className="col-auto">
-                                <label htmlFor="name" className="col-form-label">Name</label>
-                            </div>
-                            <div className="col-auto">
-                                <input type="text" id="name" name='name' className="form-control" placeholder='name' />
-                            </div>
+                    <UserFormAdd submit={this.addUser} cancel={this.handleCancelClick} />
 
-                            <div className="col-auto">
-                                <label htmlFor="phone" className="col-form-label">Phone</label>
-                            </div>
-                            <div className="col-auto">
-                                <input type="text" id="phone" name='name' className="form-control" placeholder='phone' />
-                            </div>
-                            <div className="col-auto">
-                                <button id='btnsave' className='btn btn-light'><i class="fa-regular fa-circle-check"></i> save</button>
-                                <button id='btncancel' className='btn btn-light'><i class="fa-solid fa-ban"></i> cancel</button>
-                            </div>
-                        </div>
-                    </form>
                 </div>
             </div>
-            <br />
+        );
+    }
 
-            <div className="card">
-                <div className="card-header">
-                    <h5 id='texthead'>Search Form</h5>
-                </div>
-                <div className="card-body">
-                    <form>
-                        <div className="row g-1 align-items-center">
-                            <div className="col-auto">
-                                <label htmlFor="namesearch" className="col-form-label">Name</label>
-                            </div>
-                            <div className="col-auto">
-                                <input type="text" id="namesearch" name='namesearch' className="form-control" placeholder='name' />
-                            </div>
+    handleClickAdd = () => {
+        this.setState(state => ({
+            isAdd: !state.isAdd
+        }));
+    }
 
-                            <div className="col-auto">
-                                <label htmlFor="phonesearch" className="col-form-label">Phone</label>
-                            </div>
-                            <div className="col-auto">
-                                <input type="text" id="phonesearch" name='phonesearch' className="form-control" placeholder='phone' />
-                            </div>
+    handleCancelClick = () => {
+        this.setState({
+            isAdd: false
+        });
+    }
+
+    render() {
+        return (
+            <div className="container">
+                <div className="card">
+                    <div className="card-header">
+                        <div className="head">
+                            <h1>Phone Book Apps</h1>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-            <br />
+                <br />
+                <div>
+                    {/* ini toggle kalo false munculin true kalo true munculin false*/}
+                    {this.state.isAdd ? <this.showAdd show={this.state.isAdd} /> : <button id='btnadd' className='btn btn-light' onClick={this.handleClickAdd} ><i className="fas fa-plus"></i> add </button>}
+                </div>
+                <br />
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                        <td>
-                            <button id='btnedit' className='btn btn-light'><i class="fa-sharp fa-solid fa-pen"></i> edit</button>
-                            <button id='btndelete' className='btn btn-light'><i class="fa-solid fa-ban"></i> delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    )
+                <div className="card">
+                    <div className="card-header">
+                        <h5 id='texthead'>Search Form</h5>
+                    </div>
+                    <div className="card-body">
+                        <UserFormSearch submit={this.searchUser} />
+                    </div>
+                </div>
+                <br />
+                <UserList data={this.state.users} delete={this.removeUser} resend={this.resendUser} renew={this.updateUser} />
+
+            </div>
+        )
+    }
 }
