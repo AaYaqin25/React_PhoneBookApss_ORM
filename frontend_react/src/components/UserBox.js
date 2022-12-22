@@ -157,6 +157,7 @@ export default class UserBox extends Component {
         if (this.params.page <= this.params.totalPage) {
             this.params = { ...this.params, page: this.params.page + 1 }
         }
+        
         this.loadUser()
 
     }

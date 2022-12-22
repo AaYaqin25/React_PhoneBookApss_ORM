@@ -4,14 +4,13 @@ import UserItem from "./UserItem"
 export default function UserList(props) {
 
     const scrolling = (event) => {
-        console.log("di scroll");
         var element = event.target;
-        if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+        if (element.scrollHeight - element.scrollTop - element.clientHeight <= 1) {
             props.paginationscroll()
         }
     }
     return (
-        <div onScroll={scrolling} style={{ overflowY: "scroll", height: 50}}>
+        <div onScroll={scrolling} style={{ overflowY: "scroll", height: 200}}>
             <table className="table">
                 <thead>
                     <tr>
