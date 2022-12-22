@@ -31,43 +31,35 @@ router.get('/', async function (req, res, next) {
               }
             }
           ]
-        },
-        offset: offset,
-        limit: limit
+        }
       })
       res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
     } else if (name) {
       const getUser = await models.User.findAll({
         where: {
-          [Op.and]: [
-            {
-              name: {
-                [Op.iLike]: '%' + name + '%'
-              }
-            }
-          ]
-        },
-        offset: offset,
-        limit: limit
+          name: {
+            [Op.iLike]: '%' + name + '%'
+          }
+        }
       })
       res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
     } else if (phone) {
       const getUser = await models.User.findAll({
         where: {
-          [Op.and]: [
-            {
-              phone: {
-                [Op.iLike]: '%' + phone + '%'
-              }
-            }
-          ]
-        },
-        offset: offset,
-        limit: limit
-      }) 
+          phone: {
+            [Op.iLike]: '%' + phone + '%'
+          }
+        }
+      })
       res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
     } else {
-      const getUser = await models.User.findAll()
+      const getUser = await models.User.findAll({
+        order: [
+          ["id", "ASC"]
+        ],
+        limit: limit,
+        offset: offset
+      })
       res.json(new Response({ result: getUser, page: page, totalPage: totalPage, offset }))
     }
   } catch (error) {
@@ -114,3 +106,7 @@ router.delete('/:id', async function (req, res, next) {
 });
 
 module.exports = router;
+
+
+// Executing (default): SELECT "id", "name", "phone", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE ("User"."name" ILIKE '%yaq%');
+// Executing (default): SELECT "id", "name", "phone", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE ("User"."name" ILIKE '%yaq%');

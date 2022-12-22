@@ -5,8 +5,7 @@ export default class UserFormSearch extends Component {
         super(props)
         this.state = {
             name: '',
-            phone: '',
-            isAdd: false
+            phone: ''
         }
     }
 

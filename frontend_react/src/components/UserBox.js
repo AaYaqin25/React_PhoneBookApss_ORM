@@ -9,6 +9,7 @@ import axios from 'axios'
 export default class UserBox extends Component {
     constructor(props) {
         super(props)
+        this.params = {}
         this.state = {
             users: [],
             isAdd: false
@@ -16,20 +17,26 @@ export default class UserBox extends Component {
     }
 
     componentDidMount() {
-        axios.get('http://localhost:3000/users')
+        this.loadUser()
+    }
+
+    loadUser = () => {
+        axios.get('http://localhost:3000/users', { params: this.params })
             .then(({ data }) => {
-                this.setState({
-                    users: data.data.result.map(item => {
+                this.setState(state => ({
+                    users: [...(this.params.page === 1 ? [] : state.users), ...data.data.result.map(item => {
                         item.sent = true
                         return item
-                    })
-                })
+                    })]
+
+                }))
+                this.params.page = data.data.page
+                this.params.totalPage = data.data.totalPage
             })
             .catch((error) => {
                 console.log(error);
             })
     }
-
 
     addUser = ({ name, phone }) => {
         const id = Date.now()
@@ -44,7 +51,7 @@ export default class UserBox extends Component {
 
         axios.post('http://localhost:3000/users', { name, phone })
             .then(({ data }) => {
-                console.log(data);
+                console.log(data.data);
                 this.setState(state => {
                     return {
                         users: state.users.map(item => {
@@ -142,18 +149,16 @@ export default class UserBox extends Component {
 
 
     searchUser = (query) => {
-        axios.get('http://localhost:3000/users', {params: query})
-            .then(({ data }) => {
-                this.setState({
-                    users: data.data.result.map(item => {
-                        item.sent = true
-                        return item
-                    })
-                })
-            })
-            .catch((error) => {
-                console.log(error);
-            })
+        this.params = { ...this.params, ...query, page: 1 }
+        this.loadUser()
+    }
+
+    loadPagination = () => {
+        if (this.params.page <= this.params.totalPage) {
+            this.params = { ...this.params, page: this.params.page + 1 }
+        }
+        this.loadUser()
+
     }
 
     showAdd = (props) => {
@@ -211,7 +216,7 @@ export default class UserBox extends Component {
                     </div>
                 </div>
                 <br />
-                <UserList data={this.state.users} delete={this.removeUser} resend={this.resendUser} renew={this.updateUser} />
+                <UserList data={this.state.users} delete={this.removeUser} resend={this.resendUser} renew={this.updateUser} paginationscroll={this.loadPagination} />
 
             </div>
         )
