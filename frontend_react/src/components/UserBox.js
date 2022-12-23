@@ -51,7 +51,6 @@ export default class UserBox extends Component {
 
         axios.post('http://localhost:3000/users', { name, phone })
             .then(({ data }) => {
-                console.log(data.data);
                 this.setState(state => {
                     return {
                         users: state.users.map(item => {
