@@ -156,7 +156,7 @@ export default class UserBox extends Component {
         if (this.params.page <= this.params.totalPage) {
             this.params = { ...this.params, page: this.params.page + 1 }
         }
-        
+
         this.loadUser()
 
     }
@@ -190,6 +190,10 @@ export default class UserBox extends Component {
         });
     }
 
+    handleResetSearch = () => {
+        this.params = {page: 1, totalPage: 1, query: {}}
+        this.loadUser()
+    }
     render() {
         return (
             <div className="container">
@@ -212,7 +216,7 @@ export default class UserBox extends Component {
                         <h5 id='texthead'>Search Form</h5>
                     </div>
                     <div className="card-body">
-                        <UserFormSearch submit={this.searchUser} />
+                        <UserFormSearch submit={this.searchUser} reset={this.handleResetSearch}/>
                     </div>
                 </div>
                 <br />

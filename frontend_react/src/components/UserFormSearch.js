@@ -46,6 +46,7 @@ export default class UserFormSearch extends Component {
                 </div>
                 <div className="col-auto">
                     <button className='btn btn-primary' ><i className="fa-regular fa-circle-check"></i> search</button>
+                    <button className='btn btn-dark' onClick={this.props.reset} ><i className="fa-solid fa-rotate"></i> reset</button>
                 </div>
             </div>
         </form>
