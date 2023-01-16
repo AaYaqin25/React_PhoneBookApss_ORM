@@ -24,9 +24,12 @@ export default class UserFormSearch extends Component {
     handleSubmit = (event) => {
         event.preventDefault();
         this.props.submit({ name: this.state.name, phone: this.state.phone })
-        this.setState({ name: '', phone: '' })
     }
 
+    handleReset = () => {
+        this.props.reset()
+        this.setState({name: '', phone: ''})
+    }
     render() {
         return (
            <form onSubmit={this.handleSubmit}>
@@ -46,7 +49,7 @@ export default class UserFormSearch extends Component {
                 </div>
                 <div className="col-auto">
                     <button className='btn btn-primary' ><i className="fa-regular fa-circle-check"></i> search</button>
-                    <button className='btn btn-dark' onClick={this.props.reset} ><i className="fa-solid fa-rotate"></i> reset</button>
+                    <button className='btn btn-dark' onClick={this.handleReset} ><i className="fa-solid fa-rotate"></i> reset</button>
                 </div>
             </div>
         </form>
